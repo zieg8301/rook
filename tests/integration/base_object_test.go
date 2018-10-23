@@ -51,19 +51,19 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	require.Nil(s.T(), cobsErr)
 	logger.Infof("Object store created successfully")
 
-	/* TODO: Reenable this test after we have the object user CRD
-
 	logger.Infof("Step 1 : Create Object Store User")
-	initialUsers, _ := helper.ObjectClient.ObjectListUser(storeName)
-	_, cosuErr := helper.ObjectClient.CreateUser(storeName, userid, userdisplayname)
+	initialUsers, _ := helper.ObjectUserClient.List(namespace, storeName)
+	cosuErr := helper.ObjectUserClient.Create(namespace, userid, userdisplayname, storeName)
 	require.Nil(s.T(), cosuErr)
-	usersAfterCreate, _ := helper.ObjectClient.ObjectListUser(storeName)
+	usersAfterCreate, _ := helper.ObjectUserClient.List(namespace, storeName)
 	require.Equal(s.T(), len(initialUsers)+1, len(usersAfterCreate), "Make sure user list count is increased by 1")
-	getuserData, guErr := helper.ObjectClient.ObjectGetUser(storeName, userid)
-	require.Nil(s.T(), guErr)
-	require.Equal(s.T(), userid, getuserData.UserID, "Check user id returned")
-	require.Equal(s.T(), userdisplayname, *getuserData.DisplayName, "Check user name returned")
+	// getuserData, guErr := helper.ObjectUserClient.Get(storeName, userid)
+	// require.Nil(s.T(), guErr)
+	// require.Equal(s.T(), userid, getuserData.UserID, "Check user id returned")
+	// require.Equal(s.T(), userdisplayname, *getuserData.DisplayName, "Check user name returned")
 	logger.Infof("Object store user created successfully")
+
+	/* TODO: Reenable this test after we have the object user CRD
 
 	logger.Infof("Step 2 : Get connection information")
 	conninfo, conninfoError := helper.ObjectClient.ObjectGetUser(storeName, userid)
@@ -115,13 +115,14 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	require.Equal(s.T(), len(initialBuckets), len(BucketsAfterDelete), "Make sure new bucket is deleted")
 	logger.Infof("Bucket  deleted successfully")
 
-	logger.Infof("Step 8 : Delete  User")
-	usersBeforeDelete, _ := helper.ObjectClient.ObjectListUser(storeName)
-	helper.ObjectClient.DeleteUser(storeName, userid)
-	usersAfterDelete, _ := helper.ObjectClient.ObjectListUser(storeName)
+	*/ // End of object user tests
+
+	logger.Infof("Step 2 : Test Deleting User")
+	usersBeforeDelete, _ := helper.ObjectUserClient.List(namespace, storeName)
+	helper.ObjectUserClient.Delete(namespace, userid, userdisplayname, storeName)
+	usersAfterDelete, _ := helper.ObjectUserClient.List(namespace, storeName)
 	require.Equal(s.T(), len(usersBeforeDelete)-1, len(usersAfterDelete), "Make sure user list count is reduced by 1")
 	logger.Infof("Object store user deleted successfully")
-	*/
 
 	logger.Infof("Check that MGRs are not in a crashloop")
 	assert.True(s.T(), k8sh.CheckPodCountAndState("rook-ceph-mgr", namespace, 1, "Running"))
