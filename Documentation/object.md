@@ -66,19 +66,24 @@ spec:
 ```
 
 When the object store user is created the Rook operator will create the RGW user on the object store specified, and store the Access Key and Secret Key in a kubernetes secret in the same namespace as the object store user.
- ```bash
+
+```bash
 # Create the object store user
 kubectl create -f object-user.yaml
- # To confirm the object store user is configured, describe the secret
+
+# To confirm the object store user is configured, describe the secret
 kubectl -n rook-ceph describe secret rook-ceph-object-user-my-user
- Name:		rook-ceph-object-user-my-user
+
+Name:		rook-ceph-object-user-my-user
 Namespace:	rook-ceph
 Labels:			app=rook-ceph-rgw
 			      rook_cluster=rook-ceph
 			      rook_object_store=my-store
 Annotations:	<none>
- Type:	kubernetes.io/rook
- Data
+
+Type:	kubernetes.io/rook
+
+Data
 ====
 AccessKey:	20 bytes
 SecretKey:	40 bytes
