@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Rook Authors. All rights reserved.
+Copyright 2018 The Rook Authors. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,17 +32,6 @@ type ObjectUserOperation struct {
 func CreateObjectUserOperation(k8sh *utils.K8sHelper, manifests installer.CephManifests) *ObjectUserOperation {
 	return &ObjectUserOperation{k8sh, manifests}
 }
-
-// // List Function to list a filesystem in rook
-// // Output - output returned by the call
-// func (o *ObjectUserOperation) List(namespace string) ([]rgw.ObjectUser, error) {
-// 	context := o.k8sh.MakeContext()
-// 	users, err := rgw.ListUsers(context)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to list users: %+v", err)
-// 	}
-// 	return users, nil
-// }
 
 // ObjectUserList Function to list object store users in rook
 func (o *ObjectUserOperation) List(namespace string, store string) (string, error) {
