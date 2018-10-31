@@ -17,6 +17,7 @@ or any other image found on the [Ceph DockerHub](https://hub.docker.com/r/ceph/c
 - The toolbox manifest now creates a deployment based on the `rook/ceph` image instead of creating a pod on a specialized `rook/ceph-toolbox` image.
 - The frequency of discovering devices on a node is reduced to 60 minutes by default, and is configurable with the setting `ROOK_DISCOVER_DEVICES_INTERVAL` in operator.yaml.
 - The number of mons can be changed by updating the `mon.count` in the cluster CRD.
+- Object Store User creation via CRD for Ceph clusters.
 
 ## Breaking Changes
 - Ceph mons are [named consistently](https://github.com/rook/rook/issues/1751) with other daemons with the letters a, b, c, etc.
