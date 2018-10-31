@@ -52,15 +52,9 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	logger.Infof("Object store created successfully")
 
 	logger.Infof("Step 1 : Create Object Store User")
-	initialUsers, _ := helper.ObjectUserClient.List(namespace, storeName)
 	cosuErr := helper.ObjectUserClient.Create(namespace, userid, userdisplayname, storeName)
 	require.Nil(s.T(), cosuErr)
-	usersAfterCreate, _ := helper.ObjectUserClient.List(namespace, storeName)
-	require.Equal(s.T(), len(initialUsers)+1, len(usersAfterCreate), "Make sure user list count is increased by 1")
-	// getuserData, guErr := helper.ObjectUserClient.Get(storeName, userid)
-	// require.Nil(s.T(), guErr)
-	// require.Equal(s.T(), userid, getuserData.UserID, "Check user id returned")
-	// require.Equal(s.T(), userdisplayname, *getuserData.DisplayName, "Check user name returned")
+	require.True(s.T(), helper.ObjectUserClient.UserSecretExists(namespace, userid, storeName), "make sure user secret was created")
 	logger.Infof("Object store user created successfully")
 
 	/* TODO: Reenable this test after we have the object user CRD
@@ -115,13 +109,11 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	require.Equal(s.T(), len(initialBuckets), len(BucketsAfterDelete), "Make sure new bucket is deleted")
 	logger.Infof("Bucket  deleted successfully")
 
-	*/ // End of object user tests
+	*/ // End of object operation tests
 
 	logger.Infof("Step 2 : Test Deleting User")
-	usersBeforeDelete, _ := helper.ObjectUserClient.List(namespace, storeName)
-	helper.ObjectUserClient.Delete(namespace, userid, userdisplayname, storeName)
-	usersAfterDelete, _ := helper.ObjectUserClient.List(namespace, storeName)
-	require.Equal(s.T(), len(usersBeforeDelete)-1, len(usersAfterDelete), "Make sure user list count is reduced by 1")
+	dosuErr := helper.ObjectUserClient.Delete(namespace, userid, userdisplayname, storeName)
+	require.Nil(s.T(), dosuErr)
 	logger.Infof("Object store user deleted successfully")
 
 	logger.Infof("Check that MGRs are not in a crashloop")

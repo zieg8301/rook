@@ -17,7 +17,6 @@ limitations under the License.
 package clients
 
 import (
-	"fmt"
 	"github.com/rook/rook/tests/framework/installer"
 	"github.com/rook/rook/tests/framework/utils"
 )
@@ -34,12 +33,14 @@ func CreateObjectUserOperation(k8sh *utils.K8sHelper, manifests installer.CephMa
 }
 
 // ObjectUserList Function to list object store users in rook
-func (o *ObjectUserOperation) List(namespace string, store string) (string, error) {
-	result, err := o.k8sh.GetResource("-n", namespace, "secrets", "-l", "rook_object_store="+store)
-	if err != nil {
-		return "null", fmt.Errorf("failed to list users: %+v", err)
+func (o *ObjectUserOperation) UserSecretExists(namespace string, store string, user string) bool {
+	_, err := o.k8sh.GetResource("-n", namespace, "secrets", "-l", "rook_object_store="+store, "-l", "user="+user)
+	if err == nil {
+		logger.Infof("Object User Secret Exists")
+		return true
 	}
-	return result, nil
+	logger.Infof("Unable to find user secret")
+	return false
 }
 
 // ObjectUserCreate Function to create a object store user in rook
