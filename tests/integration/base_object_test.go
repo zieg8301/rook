@@ -55,9 +55,13 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	cosuErr := helper.ObjectUserClient.Create(namespace, userid, userdisplayname, storeName)
 	require.Nil(s.T(), cosuErr)
 	require.True(s.T(), helper.ObjectUserClient.UserSecretExists(namespace, userid, storeName), "make sure user secret was created")
+	userInfo, gosuErr := helper.ObjectUserClient.GetUser(namespace, storeName, userid)
+	require.Nil(s.T(), gosuErr)
+	require.Equal(s.T(), userid, userInfo.UserID)
+	require.Equal(s.T(), userdisplayname, *userInfo.DisplayName)
 	logger.Infof("Object store user created successfully")
 
-	/* TODO: Reenable this test after we have the object user CRD
+	/* TODO: We need bucket management tests.
 
 	logger.Infof("Step 2 : Get connection information")
 	conninfo, conninfoError := helper.ObjectClient.ObjectGetUser(storeName, userid)
@@ -112,7 +116,7 @@ func runObjectE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s suite
 	*/ // End of object operation tests
 
 	logger.Infof("Step 2 : Test Deleting User")
-	dosuErr := helper.ObjectUserClient.Delete(namespace, userid, userdisplayname, storeName)
+	dosuErr := helper.ObjectUserClient.Delete(namespace, userid)
 	require.Nil(s.T(), dosuErr)
 	logger.Infof("Object store user deleted successfully")
 

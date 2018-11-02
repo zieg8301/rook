@@ -62,7 +62,7 @@ metadata:
   namespace: rook-ceph
 spec:
   store: my-store
-  displayName: my-display-name
+  displayName: "my display name"
 ```
 
 When the object store user is created the Rook operator will create the RGW user on the object store specified, and store the Access Key and Secret Key in a kubernetes secret in the same namespace as the object store user.

@@ -159,7 +159,8 @@ func (c *ObjectStoreUserController) createUser(context *clusterd.Context, u *cep
 	}
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "rook-ceph-object-user-" + u.Spec.Store + "-" + u.Name,
+			Name: fmt.Sprintf("rook-ceph-object-user-%s-%s", u.Spec.Store, u.Name),
+			//Name:      "rook-ceph-object-user-" + u.Spec.Store + "-" + u.Name,
 			Namespace: u.Namespace,
 			Labels: map[string]string{
 				"app":               AppName,
@@ -182,27 +183,15 @@ func (c *ObjectStoreUserController) createUser(context *clusterd.Context, u *cep
 }
 
 // Delete the user
-
-// func deleteUser(context *clusterd.Context, u *cephv1beta1.ObjectStoreUser) error {
-// 	objContext := cephrgw.NewContext(context, u.Spec.Store, u.Namespace)
-// 	result, rgwerr, err := cephrgw.DeleteUser(objContext, u.Name)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to delete user '%s'. RadosGW returned error %d: %+v", u.Name, rgwerr, err)
-// 	} else if result != "" {
-// 		logger.Infof("result of user delete is: %s", result)
-// 	}
-
 func deleteUser(context *clusterd.Context, u *cephv1beta1.ObjectStoreUser) error {
 	objContext := cephrgw.NewContext(context, u.Spec.Store, u.Namespace)
-	result, rgwerr, err := cephrgw.DeleteUser(objContext, u.Name)
+	_, rgwerr, err := cephrgw.DeleteUser(objContext, u.Name)
 	if err != nil {
-		return fmt.Errorf("failed to delete user '%s': %+v", u.Name, err)
-	}
-	if rgwerr == 3 {
-		logger.Infof("user %s does not exist in store %s", u.Name, u.Spec.Store)
-	}
-	if result != "" {
-		logger.Infof("result of user delete is: %s", result)
+		if rgwerr == 3 {
+			logger.Infof("user %s does not exist in store %s", u.Name, u.Spec.Store)
+		} else {
+			return fmt.Errorf("failed to delete user '%s': %+v", u.Name, err)
+		}
 	}
 
 	err = context.Clientset.CoreV1().Secrets(u.Namespace).Delete("rook-ceph-object-user-"+u.Name, &metav1.DeleteOptions{})

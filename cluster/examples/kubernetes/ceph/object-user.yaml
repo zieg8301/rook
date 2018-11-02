@@ -5,4 +5,4 @@ metadata:
   namespace: rook-ceph
 spec:
   store: my-store
-  displayName: my-display-name
+  displayName: "my display name"

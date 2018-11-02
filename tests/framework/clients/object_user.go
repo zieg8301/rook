@@ -17,6 +17,8 @@ limitations under the License.
 package clients
 
 import (
+	"fmt"
+	"github.com/rook/rook/pkg/daemon/ceph/rgw"
 	"github.com/rook/rook/tests/framework/installer"
 	"github.com/rook/rook/tests/framework/utils"
 )
@@ -32,9 +34,20 @@ func CreateObjectUserOperation(k8sh *utils.K8sHelper, manifests installer.CephMa
 	return &ObjectUserOperation{k8sh, manifests}
 }
 
-// ObjectUserList Function to list object store users in rook
-func (o *ObjectUserOperation) UserSecretExists(namespace string, store string, user string) bool {
-	_, err := o.k8sh.GetResource("-n", namespace, "secrets", "-l", "rook_object_store="+store, "-l", "user="+user)
+// ObjectUserGet Function to get the details of an object user from radosgw
+func (o *ObjectUserOperation) GetUser(namespace string, store string, userid string) (*rgw.ObjectUser, error) {
+	context := o.k8sh.MakeContext()
+	rgwcontext := rgw.NewContext(context, store, namespace)
+	userinfo, _, err := rgw.GetUser(rgwcontext, userid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info: %+v", err)
+	}
+	return userinfo, nil
+}
+
+// UserSecretExists Function to check that user secret was created
+func (o *ObjectUserOperation) UserSecretExists(namespace string, store string, userid string) bool {
+	_, err := o.k8sh.GetResource("-n", namespace, "secrets", "-l", "rook_object_store="+store, "-l", "user="+userid)
 	if err == nil {
 		logger.Infof("Object User Secret Exists")
 		return true
@@ -44,19 +57,19 @@ func (o *ObjectUserOperation) UserSecretExists(namespace string, store string, u
 }
 
 // ObjectUserCreate Function to create a object store user in rook
-func (o *ObjectUserOperation) Create(namespace string, name string, displayName string, store string) error {
+func (o *ObjectUserOperation) Create(namespace string, userid string, displayName string, store string) error {
 
 	logger.Infof("creating the object store user via CRD")
-	if _, err := o.k8sh.ResourceOperation("create", o.manifests.GetObjectStoreUser(namespace, name, displayName, store)); err != nil {
+	if _, err := o.k8sh.ResourceOperation("create", o.manifests.GetObjectStoreUser(namespace, userid, displayName, store)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ObjectUserOperation) Delete(namespace string, name string, displayName string, store string) error {
+func (o *ObjectUserOperation) Delete(namespace string, userid string) error {
 
 	logger.Infof("Deleting the object store user via CRD")
-	if _, err := o.k8sh.DeleteResource("-n", namespace, "ObjectStoreUser", store); err != nil {
+	if _, err := o.k8sh.DeleteResource("-n", namespace, "ObjectStoreUser", userid); err != nil {
 		return err
 	}
 	return nil
