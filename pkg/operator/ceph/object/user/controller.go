@@ -160,7 +160,6 @@ func (c *ObjectStoreUserController) createUser(context *clusterd.Context, u *cep
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: fmt.Sprintf("rook-ceph-object-user-%s-%s", u.Spec.Store, u.Name),
-			//Name:      "rook-ceph-object-user-" + u.Spec.Store + "-" + u.Name,
 			Namespace: u.Namespace,
 			Labels: map[string]string{
 				"app":               AppName,
